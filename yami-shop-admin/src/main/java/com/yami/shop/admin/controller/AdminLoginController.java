@@ -43,7 +43,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author FrozenWatermelon
+ * admin登录控制器
+ * @author 北易航
  * @date 2020/6/30
  */
 @RestController
@@ -74,17 +75,22 @@ public class AdminLoginController {
             @Valid @RequestBody CaptchaAuthenticationDTO captchaAuthenticationDTO) {
         // 登陆后台登录需要再校验一遍验证码
         CaptchaVO captchaVO = new CaptchaVO();
+        // 将传入的验证码设置为该对象的CaptchaVerification属性
         captchaVO.setCaptchaVerification(captchaAuthenticationDTO.getCaptchaVerification());
+        // 调用captchaService对象的verification方法来校验该验证码是否正确
         ResponseModel response = captchaService.verification(captchaVO);
         if (!response.isSuccess()) {
             return ServerResponseEntity.showFailMsg("验证码有误或已过期");
         }
 
+        // 通过用户名验证用户信息
         SysUser sysUser = sysUserService.getByUserName(captchaAuthenticationDTO.getUserName());
+        // 不存在 提示错误
         if (sysUser == null) {
             throw new YamiShopBindException("账号或密码不正确");
         }
 
+        // 对密码进行解密
         // 半小时内密码输入错误十次，已限制登录30分钟
         String decryptPassword = passwordManager.decryptPassword(captchaAuthenticationDTO.getPassWord());
         passwordCheckManager.checkPassword(SysTypeEnum.ADMIN,captchaAuthenticationDTO.getUserName(), decryptPassword, sysUser.getPassword());
@@ -94,7 +100,7 @@ public class AdminLoginController {
             // 未找到此用户信息
             throw new YamiShopBindException("未找到此用户信息");
         }
-
+        // 构造一个UserInfoInTokenBO对象，用于生成token
         UserInfoInTokenBO userInfoInToken = new UserInfoInTokenBO();
         userInfoInToken.setUserId(String.valueOf(sysUser.getUserId()));
         userInfoInToken.setSysType(SysTypeEnum.ADMIN.value());
@@ -113,11 +119,15 @@ public class AdminLoginController {
 
         //系统管理员，拥有最高权限
         if(userId == Constant.SUPER_ADMIN_ID){
+            // 获取所有菜单列表
             List<SysMenu> menuList = sysMenuService.list(Wrappers.emptyWrapper());
+            // 转换成菜单权限列表
             permsList = menuList.stream().map(SysMenu::getPerms).collect(Collectors.toList());
         }else{
+            // 获取用户的权限列表
             permsList = sysUserService.queryAllPerms(userId);
         }
+        // 去除空格后，根据逗号分割权限列表，然后去重并返回Set集合
         return permsList.stream().flatMap((perms)->{
                     if (StrUtil.isBlank(perms)) {
                         return null;

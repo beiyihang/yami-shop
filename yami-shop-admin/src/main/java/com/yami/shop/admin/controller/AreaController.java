@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author lgh on 2018/10/26.
+ * 城市
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/admin/area")
@@ -50,13 +51,15 @@ public class AreaController {
      * 获取省市
      */
     @GetMapping("/list")
+    // 在方法执行前进行权限检查，只有通过才能执行
     @PreAuthorize("@pms.hasPermission('admin:area:list')")
     public ServerResponseEntity<List<Area>> list(Area area) {
+        // 调用areaService的list()方法，该方法接受一个LambdaQueryWrapper对象作为参数，并返回一个Area对象的列表
         List<Area> areas = areaService.list(new LambdaQueryWrapper<Area>()
                 .like(area.getAreaName() != null, Area::getAreaName, area.getAreaName()));
+        // 将查询到的列表包装成ServerResponseEntity对象返回
         return ServerResponseEntity.success(areas);
     }
-
     /**
      * 通过父级id获取区域列表
      */
@@ -82,11 +85,14 @@ public class AreaController {
     @PostMapping
     @PreAuthorize("@pms.hasPermission('admin:area:save')")
     public ServerResponseEntity<Void> save(@Valid @RequestBody Area area) {
+        // 如果有父级地区，就根据父级地区计算当前地区的层级
         if (area.getParentId() != null) {
             Area parentArea = areaService.getById(area.getParentId());
             area.setLevel(parentArea.getLevel() + 1);
+            // 由于新增了一个子地区，需要清空所有以该父级地区为父级的缓存
             areaService.removeAreaCacheByParentId(area.getParentId());
         }
+        // 保存地区信息到数据库
         areaService.save(area);
         return ServerResponseEntity.success();
     }
@@ -122,14 +128,16 @@ public class AreaController {
         areaService.removeAreaCacheByParentId(area.getParentId());
         return ServerResponseEntity.success();
     }
-
+    // 是否存在同名的地区
     private void hasSameName(Area area) {
+        // 传入的地区对象中的 parentId 和 areaName 属性进行查询
         long count = areaService.count(new LambdaQueryWrapper<Area>()
                 .eq(Area::getParentId, area.getParentId())
                 .eq(Area::getAreaName, area.getAreaName())
                 .ne(Objects.nonNull(area.getAreaId()) && !Objects.equals(area.getAreaId(), 0L), Area::getAreaId, area.getAreaId())
         );
         if (count > 0) {
+            // 如果数据库中已经存在了具有相同地区，则弹出
             throw new YamiShopBindException("该地区已存在");
         }
     }

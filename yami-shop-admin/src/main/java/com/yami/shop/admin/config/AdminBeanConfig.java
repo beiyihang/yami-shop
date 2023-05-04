@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author lanhai
+ * @author 北易航
  */
 @Configuration
 @AllArgsConstructor

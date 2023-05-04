@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Swagger文档，只有在测试环境才会使用
- * @author LGH
+ * @author 北易航
  */
 @Configuration
 public class SwaggerConfiguration {

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 商城配置文件
- * @author lgh
+ * @author 北易航
  */
 @Data
 @Component

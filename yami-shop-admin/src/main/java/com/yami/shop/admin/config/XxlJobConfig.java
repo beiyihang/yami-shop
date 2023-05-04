@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * 原本用spring 的 quartz做定时任务的，但是文档写着要忽略数据库大小写，结果很多人根本不看文档，所以干脆就把这个quartz的删掉，然后通过xxl-job执行定时任务
  * 那么又会带来一个问题，大家也不会看文档，也不会去下载xxl-job，所以要把这里面的代码注掉，要是有人需要的话，改下这里的连接配置，连上xxl-job即可。
  * 毕竟你都能找到这个文件了，下载xxl-job，修改并启动xxl-job-admin，把取消订单，确认收货之类定时任务加入到里面即可咯。还要把下面的注释掉的代码打开，这样启动项目就会连接xxl-job执行定时任务了。
- * @author FrozenWatermelon
+ * @author 北易航
  * @date 2021/1/18
  */
 @Configuration
