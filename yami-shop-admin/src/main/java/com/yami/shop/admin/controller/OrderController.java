@@ -45,7 +45,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author lgh on 2018/09/15.
+ *  订单
+ * @author 北易航
  */
 @Slf4j
 @RestController
@@ -73,12 +74,13 @@ public class OrderController {
     @GetMapping("/page")
     @PreAuthorize("@pms.hasPermission('order:order:page')")
     public ServerResponseEntity<IPage<Order>> page(OrderParam orderParam,PageParam<Order> page) {
+        // 拿到用户id所在的商品id
         Long shopId = SecurityUtils.getSysUser().getShopId();
+        // 将商品id设置为查询参数
         orderParam.setShopId(shopId);
+        // 根据查询参数进行订单详情的分页查询
         IPage<Order> orderPage = orderService.pageOrdersDetailByOrderParam(page, orderParam);
         return ServerResponseEntity.success(orderPage);
-
-
     }
 
     /**
@@ -87,15 +89,21 @@ public class OrderController {
     @GetMapping("/orderInfo/{orderNumber}")
     @PreAuthorize("@pms.hasPermission('order:order:info')")
     public ServerResponseEntity<Order> info(@PathVariable("orderNumber") String orderNumber) {
+        // 获取当前用户所在商店的ID
         Long shopId = SecurityUtils.getSysUser().getShopId();
+        // 根据订单编号获取订单
         Order order = orderService.getOrderByOrderNumber(orderNumber);
+        // 如果当前商店ID不等于订单所属商店ID，则抛出异常
         if (!Objects.equal(shopId, order.getShopId())) {
             throw new YamiShopBindException("您没有权限获取该订单信息");
         }
+        // 获取订单详情列表
         List<OrderItem> orderItems = orderItemService.getOrderItemsByOrderNumber(orderNumber);
         order.setOrderItems(orderItems);
+        // 获取订单对应的地址信息
         UserAddrOrder userAddrOrder = userAddrOrderService.getById(order.getAddrOrderId());
         order.setUserAddrOrder(userAddrOrder);
+        // 返回订单信息
         return ServerResponseEntity.success(order);
     }
 
@@ -105,12 +113,15 @@ public class OrderController {
     @PutMapping("/delivery")
     @PreAuthorize("@pms.hasPermission('order:order:delivery')")
     public ServerResponseEntity<Void> delivery(@RequestBody DeliveryOrderParam deliveryOrderParam) {
+        // 获取当前用户所在商店的ID
         Long shopId = SecurityUtils.getSysUser().getShopId();
+        // 根据订单号获取订单信息
         Order order = orderService.getOrderByOrderNumber(deliveryOrderParam.getOrderNumber());
+        // 判断当前用户是否有权限修改该订单
         if (!Objects.equal(shopId, order.getShopId())) {
             throw new YamiShopBindException("您没有权限修改该订单信息");
         }
-
+        // 封装修改的订单参数
         Order orderParam = new Order();
         orderParam.setOrderId(order.getOrderId());
         orderParam.setDvyId(deliveryOrderParam.getDvyId());
@@ -118,14 +129,15 @@ public class OrderController {
         orderParam.setDvyTime(new Date());
         orderParam.setStatus(OrderStatus.CONSIGNMENT.value());
         orderParam.setUserId(order.getUserId());
-
+        // 更新订单状态为“已发货”
         orderService.delivery(orderParam);
-
+        // 清除缓存
         List<OrderItem> orderItems = orderItemService.getOrderItemsByOrderNumber(deliveryOrderParam.getOrderNumber());
         for (OrderItem orderItem : orderItems) {
             productService.removeProductCacheByProdId(orderItem.getProdId());
             skuService.removeSkuCacheBySkuId(orderItem.getSkuId(),orderItem.getProdId());
         }
+        // 返回成功
         return ServerResponseEntity.success();
     }
 
@@ -142,14 +154,19 @@ public class OrderController {
     public void waitingConsignmentExcel(Order order, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
                                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, String consignmentName, String consignmentMobile,
                                         String consignmentAddr, HttpServletResponse response) {
+        // 获取当前用户所在店铺id
         Long shopId = SecurityUtils.getSysUser().getShopId();
         order.setShopId(shopId);
+        // 筛选出状态为已支付的订单
         order.setStatus(OrderStatus.PADYED.value());
+        // 根据条件查询待发货的订单列表
         List<Order> orders = orderService.listOrdersDetailByOrder(order, startTime, endTime);
 
         //通过工具类创建writer
         ExcelWriter writer = ExcelUtil.getWriter();
+        // 获取Excel中的Sheet对象
         Sheet sheet = writer.getSheet();
+        // 设置各列的宽度
         sheet.setColumnWidth(0, 20 * 256);
         sheet.setColumnWidth(1, 20 * 256);
         sheet.setColumnWidth(2, 20 * 256);
@@ -158,12 +175,15 @@ public class OrderController {
         sheet.setColumnWidth(7, 60 * 256);
         sheet.setColumnWidth(8, 60 * 256);
         sheet.setColumnWidth(9, 60 * 256);
-        // 待发货
+        // 表头信息
         String[] hearder = {"订单编号", "收件人", "手机", "收货地址", "商品名称", "数量", "发件人姓名", "发件人手机号", "发货地址", "备注"};
+        // 合并单元格并填写表头信息
         writer.merge(hearder.length - 1, "发货信息整理");
+        // 循环遍历待发货的订单列表
         writer.writeRow(Arrays.asList(hearder));
-
+        // 第一行为表头信息，因此从第二行开始写入订单数据
         int row = 1;
+        // 获取订单的收货地址信息
         for (Order dbOrder : orders) {
             UserAddrOrder addr = dbOrder.getUserAddrOrder();
             String addrInfo = addr.getProvince() + addr.getCity() + addr.getArea() + addr.getAddr();

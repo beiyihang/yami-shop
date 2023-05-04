@@ -27,8 +27,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
- * @author lgh on 2019/03/27.
+ * 热搜数据
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/admin/hotSearch")
@@ -43,11 +43,17 @@ public class HotSearchController {
     @GetMapping("/page")
 	@PreAuthorize("@pms.hasPermission('admin:hotSearch:page')")
 	public ServerResponseEntity<IPage<HotSearch>> page(HotSearch hotSearch,PageParam<HotSearch> page){
+		// 使用 hotSearchService 进行分页查询
 		IPage<HotSearch> hotSearchs = hotSearchService.page(page,new LambdaQueryWrapper<HotSearch>()
+				// 查询指定店铺的数据
 			.eq(HotSearch::getShopId, SecurityUtils.getSysUser().getShopId())
+				// 模糊查询 content 字段
 			.like(StrUtil.isNotBlank(hotSearch.getContent()), HotSearch::getContent,hotSearch.getContent())
+				// 模糊查询 title 字段
 				.like(StrUtil.isNotBlank(hotSearch.getTitle()), HotSearch::getTitle,hotSearch.getTitle())
+				// 精确查询 status 字段
 			.eq(hotSearch.getStatus()!=null, HotSearch::getStatus,hotSearch.getStatus())
+				// 根据 seq 字段升序排序
 				.orderByAsc(HotSearch::getSeq)
 		);
 		return ServerResponseEntity.success(hotSearchs);
@@ -64,12 +70,16 @@ public class HotSearchController {
 
 	/**
 	 * 保存
+	 * 新增一个热门搜索
 	 */
 	@PostMapping
 	@PreAuthorize("@pms.hasPermission('admin:hotSearch:save')")
 	public ServerResponseEntity<Void> save(@RequestBody @Valid HotSearch hotSearch){
+		// 设置当前时间为热门搜索记录的创建时间
 		hotSearch.setRecDate(new Date());
+		// 将当前登录用户所属的商店ID设置为热门搜索记录的所属商店ID；
 		hotSearch.setShopId(SecurityUtils.getSysUser().getShopId());
+		// 将热门搜索记录保存到数据库中
 		hotSearchService.save(hotSearch);
 		//清除缓存
 		hotSearchService.removeHotSearchDtoCacheByShopId(SecurityUtils.getSysUser().getShopId());

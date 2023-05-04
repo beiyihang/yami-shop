@@ -26,7 +26,7 @@ import java.util.Objects;
 
 /**
  * 文件上传 controller
- * @author lgh
+ * @author 北易航
  *
  */
 @RestController
@@ -51,13 +51,18 @@ public class FileController {
 	
 	@PostMapping("/upload/tinymceEditor")
 	public ServerResponseEntity<String> uploadTinymceEditorImages(@RequestParam("editorFile") MultipartFile editorFile) throws IOException{
+		// 调用attachFileService上传文件，并返回文件名
 		String fileName =  attachFileService.uploadFile(editorFile);
 		String data = "";
+		// 根据配置的图片上传类型，生成图片的URL地址
+		// 本地服务器存储
 		if (Objects.equals(imgUploadUtil.getUploadType(), 1)) {
 			data = imgUploadUtil.getUploadPath() + fileName;
+			// 七牛云存储
 		} else if (Objects.equals(imgUploadUtil.getUploadType(), 2)) {
 			data = qiniu.getResourcesUrl() + fileName;
 		}
+		// 返回上传图片的URL地址
         return ServerResponseEntity.success(data);
 	}
 	

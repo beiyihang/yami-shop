@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * 品牌管理
  *
- * @author lgh
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/admin/brand")
