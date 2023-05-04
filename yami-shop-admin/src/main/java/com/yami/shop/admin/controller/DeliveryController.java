@@ -23,7 +23,7 @@ import com.yami.shop.service.DeliveryService;
 
 /**
  *
- * @author 北易航.
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/admin/delivery")

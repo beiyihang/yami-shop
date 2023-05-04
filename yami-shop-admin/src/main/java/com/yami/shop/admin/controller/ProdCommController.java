@@ -35,8 +35,8 @@ import java.util.Date;
 /**
  * 商品评论
  *
- * @author xwc
- * @date 2019-04-19 10:43:57
+ * @author 北易航
+ * @date
  */
 @RestController
 @AllArgsConstructor

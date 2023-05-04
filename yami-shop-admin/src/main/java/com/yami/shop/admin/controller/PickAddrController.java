@@ -32,7 +32,7 @@ import java.util.Objects;
 
 /**
  *
- * @author lgh on 2018/10/17.
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/shop/pickAddr")
@@ -48,8 +48,10 @@ public class PickAddrController {
 	@PreAuthorize("@pms.hasPermission('shop:pickAddr:page')")
 	public ServerResponseEntity<IPage<PickAddr>> page(PickAddr pickAddr,PageParam<PickAddr> page){
 		IPage<PickAddr> pickAddrs = pickAddrService.page(page,new LambdaQueryWrapper<PickAddr>()
-													.like(StrUtil.isNotBlank(pickAddr.getAddrName()),PickAddr::getAddrName,pickAddr.getAddrName())
-													.orderByDesc(PickAddr::getAddrId));
+
+				.like(StrUtil.isNotBlank(pickAddr.getAddrName()),PickAddr::getAddrName,pickAddr.getAddrName())
+				// 根据 addrId 倒序排序
+				.orderByDesc(PickAddr::getAddrId));
 		return ServerResponseEntity.success(pickAddrs);
 	}
 
