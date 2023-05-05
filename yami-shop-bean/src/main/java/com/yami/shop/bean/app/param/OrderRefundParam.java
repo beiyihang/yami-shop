@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * @author lanhai
+ * @author 北易航
  */
 @Data
 public class OrderRefundParam {

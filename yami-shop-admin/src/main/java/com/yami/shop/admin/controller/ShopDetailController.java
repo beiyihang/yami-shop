@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
-
 package com.yami.shop.admin.controller;
 
 import cn.hutool.core.util.StrUtil;
@@ -33,8 +23,8 @@ import java.util.stream.Collectors;
 
 
 /**
- *
- * @author lgh on 2018/08/29.
+ * 商品详情
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/shop/shopDetail")
@@ -49,9 +39,11 @@ public class ShopDetailController {
 	 */
 	@PutMapping("/isDistribution")
 	public ServerResponseEntity<Void> updateIsDistribution(@RequestParam Integer isDistribution){
+		// 创建ShopDetail实体类，并设置店铺id和是否支持配送状态
 		ShopDetail shopDetail=new ShopDetail();
 		shopDetail.setShopId(SecurityUtils.getSysUser().getShopId());
 		shopDetail.setIsDistribution(isDistribution);
+		// 调用Service更新店铺信息
 		shopDetailService.updateById(shopDetail);
 		// 更新完成后删除缓存
 		shopDetailService.removeShopDetailCacheByShopId(shopDetail.getShopId());
@@ -98,9 +90,13 @@ public class ShopDetailController {
 	@PostMapping
 	@PreAuthorize("@pms.hasPermission('shop:shopDetail:save')")
 	public ServerResponseEntity<Void> save(@Valid ShopDetailParam shopDetailParam){
+		// 使用 BeanUtil 工具类将 ShopDetailParam 对象的属性拷贝到 ShopDetail 对象中
 		ShopDetail shopDetail = BeanUtil.copyProperties(shopDetailParam, ShopDetail.class);
+		// 设置创建时间为当前时间
 		shopDetail.setCreateTime(new Date());
+		// 设置店铺状态为“1”（正常状态）
 		shopDetail.setShopStatus(1);
+		// 调用 service 的 save 方法保存店铺详情信息
 		shopDetailService.save(shopDetail);
 		return ServerResponseEntity.success();
 	}
@@ -111,9 +107,13 @@ public class ShopDetailController {
 	@PutMapping
 	@PreAuthorize("@pms.hasPermission('shop:shopDetail:update')")
 	public ServerResponseEntity<Void> update(@Valid ShopDetailParam shopDetailParam){
+		// 从数据库拿到对应的数据
 		ShopDetail daShopDetail = shopDetailService.getShopDetailByShopId(shopDetailParam.getShopId());
+		// 使用 BeanUtil 工具类将 ShopDetailParam 对象的属性拷贝到 ShopDetail 对象中
 		ShopDetail shopDetail = BeanUtil.copyProperties(shopDetailParam, ShopDetail.class);
+		// 设置创建时间为当前时间
 		shopDetail.setUpdateTime(new Date());
+		// 更新
 		shopDetailService.updateShopDetail(shopDetail,daShopDetail);
 		return ServerResponseEntity.success();
 	}
@@ -149,6 +149,8 @@ public class ShopDetailController {
 	 */
     @GetMapping("/listShopName")
 	public ServerResponseEntity<List<ShopDetail>> listShopName(){
+		// 获取所有的店铺详情信息
+		// 使用流式API对每个店铺详情进行处理，仅保留店铺ID和店铺名称
 		List<ShopDetail> list = shopDetailService.list().stream().map((dbShopDetail) ->{
 			ShopDetail shopDetail = new ShopDetail();
 			shopDetail.setShopId(dbShopDetail.getShopId());

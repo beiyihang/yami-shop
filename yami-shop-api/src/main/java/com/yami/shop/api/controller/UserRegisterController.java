@@ -1,6 +1,5 @@
 package com.yami.shop.api.controller;
 
-
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -26,7 +25,7 @@ import java.util.Date;
 /**
  * 用户信息
  *
- * @author SJL
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/user")

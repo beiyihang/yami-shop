@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
-
 package com.yami.shop.api.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author lanhai
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/p/myOrder")
@@ -68,25 +58,31 @@ public class MyOrderController {
     @Operation(summary = "订单详情信息" , description = "根据订单号获取订单详情信息")
     @Parameter(name = "orderNumber", description = "订单号" , required = true)
     public ServerResponseEntity<OrderShopDto> orderDetail(@RequestParam(value = "orderNumber", required = true) String orderNumber) {
-
+        // 获取当前用户的id
         String userId = SecurityUtils.getUser().getUserId();
+        // 创建一个订单商店DTO对象
         OrderShopDto orderShopDto = new OrderShopDto();
-
+        // 根据订单号获取订单信息
         Order order = orderService.getOrderByOrderNumber(orderNumber);
-
+        // 判断订单是否存在，不存在则抛出异常
         if (order == null) {
             throw new RuntimeException("该订单不存在");
         }
+        // 判断当前用户是否有权限获取该订单信息，没有则抛出异常
         if (!Objects.equals(order.getUserId(), userId)) {
             throw new RuntimeException("你没有权限获取该订单信息");
         }
-
+        // 根据商店id获取商店详情
         ShopDetail shopDetail = shopDetailService.getShopDetailByShopId(order.getShopId());
+        // 根据地址订单id获取地址信息，并将其转化为地址DTO
         UserAddrOrder userAddrOrder = userAddrOrderService.getById(order.getAddrOrderId());
+        // 根据订单号获取订单项列表，并将其转化为订单项DTO列表
         UserAddrDto userAddrDto = BeanUtil.copyProperties(userAddrOrder, UserAddrDto.class);
+        // 根据订单号获取订单项信息
         List<OrderItem> orderItems = orderItemService.getOrderItemsByOrderNumber(orderNumber);
+        // 将OrderItem对象列表转换为OrderItemDto对象列表
         List<OrderItemDto> orderItemDtos = BeanUtil.copyToList(orderItems, OrderItemDto.class);
-
+        // 设置订单信息到 OrderShopDto 对象中
         orderShopDto.setShopId(shopDetail.getShopId());
         orderShopDto.setShopName(shopDetail.getShopName());
         orderShopDto.setActualTotal(order.getActualTotal());
@@ -97,7 +93,7 @@ public class MyOrderController {
         orderShopDto.setCreateTime(order.getCreateTime());
         orderShopDto.setRemarks(order.getRemarks());
         orderShopDto.setStatus(order.getStatus());
-
+        // 计算订单商品总价和商品数量
         double total = 0.0;
         Integer totalNum = 0;
         for (OrderItemDto orderItem : orderShopDto.getOrderItemDtos()) {

@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
-
 package com.yami.shop.admin.task;
 
 import java.util.Date;
@@ -31,7 +21,7 @@ import cn.hutool.core.util.StrUtil;
 
 
 /**
- * @author FrozenWatermelon
+ * @author 北易航
  * 定时任务的配置，请查看xxl-job的java配置文件。
  * @see com.yami.shop.admin.config.XxlJobConfig
  */
@@ -50,17 +40,22 @@ public class OrderTask {
 
     @XxlJob("cancelOrder")
     public void cancelOrder(){
+        // 获取当前时间now
         Date now = new Date();
         logger.info("取消超时未支付订单。。。");
         // 获取30分钟之前未支付的订单
         List<Order> orders = orderService.listOrderAndOrderItems(OrderStatus.UNPAY.value(),DateUtil.offsetMinute(now, -30));
+        // 如果查询结果为空，则直接返回；
         if (CollectionUtil.isEmpty(orders)) {
             return;
         }
+        // 如果查询结果为空，则直接返回；
         orderService.cancelOrders(orders);
         for (Order order : orders) {
+            // 遍历所有被取消的订单，获取其中所有的订单项（OrderItem），
             List<OrderItem> orderItems = order.getOrderItems();
             for (OrderItem orderItem : orderItems) {
+                // 并删除这些订单项对应的商品（Product）和SKU缓存。
                 productService.removeProductCacheByProdId(orderItem.getProdId());
                 skuService.removeSkuCacheBySkuId(orderItem.getSkuId(),orderItem.getProdId());
             }

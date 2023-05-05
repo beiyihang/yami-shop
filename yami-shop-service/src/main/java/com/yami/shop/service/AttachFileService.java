@@ -1,12 +1,4 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
+
 
 package com.yami.shop.service;
 
@@ -17,8 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * @author lanhai
- * Created by lgh on 2018/07/27.
+ * @author 北易航
+ * Created by 北易航 on 2018/07/27.
  */
 public interface AttachFileService extends IService<AttachFile> {
 

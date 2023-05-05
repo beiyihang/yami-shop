@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
-
 package com.yami.shop.admin.controller;
 
 import cn.hutool.core.util.StrUtil;
@@ -26,7 +16,7 @@ import java.util.Date;
 
 
 /**
- * @author lgh on 2018/10/16.
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/admin/user")
@@ -41,14 +31,20 @@ public class UserController {
     @GetMapping("/page")
     @PreAuthorize("@pms.hasPermission('admin:user:page')")
     public ServerResponseEntity<IPage<User>> page(User user,PageParam<User> page) {
+        // 调用userService的page方法进行分页查询，使用LambdaQueryWrapper构建查询条件
         IPage<User> userPage = userService.page(page, new LambdaQueryWrapper<User>()
+                // 模糊查询昵称
                 .like(StrUtil.isNotBlank(user.getNickName()), User::getNickName, user.getNickName())
+                // 筛选状态
                 .eq(user.getStatus() != null, User::getStatus, user.getStatus()));
+        // 对查询结果进行处理，将昵称为null的用户昵称改为""
         for (User userResult : userPage.getRecords()) {
             userResult.setNickName(userResult.getNickName() == null ? "" : userResult.getNickName());
         }
+        // 返回成功响应
         return ServerResponseEntity.success(userPage);
     }
+
 
     /**
      * 获取信息
@@ -68,6 +64,7 @@ public class UserController {
     @PreAuthorize("@pms.hasPermission('admin:user:update')")
     public ServerResponseEntity<Void> update(@RequestBody User user) {
         user.setModifyTime(new Date());
+        // 判断用户的昵称是否为空，如果为空，则设置为空字符串。
         user.setNickName(user.getNickName() == null ? "" : user.getNickName());
         userService.updateById(user);
         return ServerResponseEntity.success();

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 /**
  * 正则表达式工具
- * @author LGH
+ * @author 北易航
  */
 public class PrincipalUtil {
 

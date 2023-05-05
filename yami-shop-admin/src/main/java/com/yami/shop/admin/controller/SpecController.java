@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2018-2999 广州市蓝海创新科技有限公司 All rights reserved.
- *
- * https://www.mall4j.com/
- *
- * 未经允许，不可做商业用途！
- *
- * 版权所有，侵权必究！
- */
-
 package com.yami.shop.admin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -32,7 +22,7 @@ import java.util.Objects;
 /**
  * 规格管理
  *
- * @author lgh
+ * @author 北易航
  */
 @RestController
 @RequestMapping("/prod/spec")
@@ -49,9 +39,13 @@ public class SpecController {
     @GetMapping("/page")
     @PreAuthorize("@pms.hasPermission('prod:spec:page')")
     public ServerResponseEntity<IPage<ProdProp>> page(ProdProp prodProp,PageParam<ProdProp> page) {
+        // 设置查询规则为 SPEC，即只查询规格属性
         prodProp.setRule(ProdPropRule.SPEC.value());
+        // 设置查询店铺 ID 为当前登录用户所属的店铺 ID
         prodProp.setShopId(SecurityUtils.getSysUser().getShopId());
+        // 调用商品属性服务的分页查询方法，查询符合条件的商品属性和属性值
         IPage<ProdProp> list = prodPropService.pagePropAndValue(prodProp, page);
+        // 返回成功的响应，携带查询结果
         return ServerResponseEntity.success(list);
     }
 
@@ -80,7 +74,9 @@ public class SpecController {
     @PostMapping
     @PreAuthorize("@pms.hasPermission('prod:spec:save')")
     public ServerResponseEntity<Void> save(@Valid @RequestBody ProdProp prodProp) {
+        // 设置查询规则为 SPEC，即只查询规格属性
         prodProp.setRule(ProdPropRule.SPEC.value());
+        // 设置查询店铺 ID 为当前登录用户所属的店铺 ID
         prodProp.setShopId(SecurityUtils.getSysUser().getShopId());
         prodPropService.saveProdPropAndValues(prodProp);
         return ServerResponseEntity.success();
