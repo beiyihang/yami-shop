@@ -25,17 +25,21 @@ public class ProdTagController {
 
     private ProdTagService prodTagService;
 
-    
-
     /**
      * 商品分组标签列表接口
      */
     @GetMapping("/prodTagList")
     @Operation(summary = "商品分组标签列表" , description = "获取所有的商品分组列表")
     public ServerResponseEntity<List<ProdTagDto>> getProdTagList() {
+        // 调用 prodTagService 的 listProdTag 方法获取商品标签列表
         List<ProdTag> prodTagList = prodTagService.listProdTag();
+
+        // 将 ProdTag 列表转换为 ProdTagDto 列表
         List<ProdTagDto> prodTagDtoList = BeanUtil.copyToList(prodTagList, ProdTagDto.class);
+
+        // 返回包含商品标签列表的成功响应
         return ServerResponseEntity.success(prodTagDtoList);
     }
+
 
 }

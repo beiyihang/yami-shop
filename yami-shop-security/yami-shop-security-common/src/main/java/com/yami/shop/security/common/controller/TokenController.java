@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 /**
- * @author 菠萝凤梨
+ * @author 北易航
  * @date 2022/3/25 17:33
  */
 @RestController
@@ -29,6 +29,7 @@ public class TokenController {
 
     @PostMapping("/token/refresh")
     public ServerResponseEntity<TokenInfoVO> refreshToken(@Valid @RequestBody RefreshTokenDTO refreshTokenDTO) {
+        // 调用 TokenStore 的 refreshToken 方法刷新访问令牌
         TokenInfoBO tokenInfoServerResponseEntity = tokenStore
                 .refreshToken(refreshTokenDTO.getRefreshToken());
         return ServerResponseEntity

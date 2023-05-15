@@ -1,5 +1,3 @@
-
-
 package com.yami.shop.common.annotation;
 
 import java.lang.annotation.*;

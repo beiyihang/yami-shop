@@ -1,5 +1,3 @@
-
-
 package com.yami.shop.common.util;
 
 import org.springframework.web.context.request.RequestContextHolder;

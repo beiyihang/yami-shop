@@ -12,7 +12,7 @@ import java.util.Date;
 /**
  * 用户收藏表
  *
- * @author xwc
+ * @author 北易航
  * @date 2019-04-19 16:57:20
  */
 @Data

@@ -36,12 +36,20 @@ public enum AreaLevelEnum {
     }
 
     public static AreaLevelEnum instance(Integer value) {
+        // 获取所有的AreaLevelEnum枚举值
         AreaLevelEnum[] enums = values();
+
+        // 遍历枚举值数组
         for (AreaLevelEnum statusEnum : enums) {
+            // 检查枚举值的value属性是否与给定的value相等
             if (statusEnum.value().equals(value)) {
+                // 如果相等，返回该枚举值
                 return statusEnum;
             }
         }
+
+        // 如果没有匹配的枚举值，返回null
         return null;
     }
+
 }

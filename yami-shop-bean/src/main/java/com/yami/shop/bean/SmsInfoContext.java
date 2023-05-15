@@ -16,14 +16,21 @@ public class SmsInfoContext {
 	private static ThreadLocal<List<SmsInfoBo>> smsInfoHolder = new ThreadLocal<List<SmsInfoBo>>();
 
 
-	public static List<SmsInfoBo> get(){
+	public static List<SmsInfoBo> get() {
+		// 从smsInfoHolder中获取存储的SmsInfoBo列表
 		List<SmsInfoBo> list = smsInfoHolder.get();
+
+		// 检查列表是否为空
 		if (CollectionUtil.isEmpty(list)) {
+			// 如果列表为空，返回一个空的ArrayList
 			return new ArrayList<>();
 		}
+
+		// 如果列表不为空，直接返回列表
 		return smsInfoHolder.get();
 	}
-	
+
+
 	public static void set(List<SmsInfoBo> smsInfoBos){
 		 smsInfoHolder.set(smsInfoBos);
 	}

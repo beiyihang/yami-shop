@@ -30,8 +30,6 @@ public class NoticeController {
 
     private NoticeService noticeService;
 
-    
-
     /**
      * 置顶公告列表接口
      */

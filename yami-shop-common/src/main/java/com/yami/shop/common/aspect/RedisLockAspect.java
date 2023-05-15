@@ -1,5 +1,3 @@
-
-
 package com.yami.shop.common.aspect;
 
 import cn.hutool.core.util.StrUtil;
@@ -32,19 +30,23 @@ public class RedisLockAspect {
 
 	@Around("@annotation(redisLock)")
 	public Object around(ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
+		// 获取注解中的SpEL表达式和锁名称
 		String spel = redisLock.key();
 		String lockName = redisLock.lockName();
 
-		RLock rLock = redissonClient.getLock(getRedisKey(joinPoint,lockName,spel));
+		// 获取Redisson的锁对象
+		RLock rLock = redissonClient.getLock(getRedisKey(joinPoint, lockName, spel));
 
-		rLock.lock(redisLock.expire(),redisLock.timeUnit());
+		// 获取锁并设置过期时间
+		rLock.lock(redisLock.expire(), redisLock.timeUnit());
 
 		Object result = null;
 		try {
-			//执行方法
+			// 执行被拦截的方法
 			result = joinPoint.proceed();
 
 		} finally {
+			// 释放锁
 			rLock.unlock();
 		}
 		return result;
@@ -55,12 +57,19 @@ public class RedisLockAspect {
 	 * @param joinPoint 切点
 	 * @return redisKey
 	 */
-	private String getRedisKey(ProceedingJoinPoint joinPoint,String lockName,String spel) {
+	private String getRedisKey(ProceedingJoinPoint joinPoint, String lockName, String spel) {
+		// 获取方法的签名信息
 		Signature signature = joinPoint.getSignature();
 		MethodSignature methodSignature = (MethodSignature) signature;
 		Method targetMethod = methodSignature.getMethod();
+
+		// 获取目标对象、方法参数等信息
 		Object target = joinPoint.getTarget();
 		Object[] arguments = joinPoint.getArgs();
-		return REDISSON_LOCK_PREFIX + lockName + StrUtil.COLON + SpelUtil.parse(target,spel, targetMethod, arguments);
+
+		// 构建Redis锁的键值
+		// 键值格式为：REDIS_LOCK_PREFIX + 锁名称 + 冒号 + SpEL解析结果
+		return REDISSON_LOCK_PREFIX + lockName + StrUtil.COLON + SpelUtil.parse(target, spel, targetMethod, arguments);
 	}
+
 }

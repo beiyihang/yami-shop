@@ -45,12 +45,16 @@ public class Json {
 	 */
 	public static String toJsonString(Object object) {
 		try {
+			// 将对象转换为 JSON 字符串
 			return objectMapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
+			// 如果转换过程中发生异常，则记录错误日志
 			log.error("对象转json错误：", e);
 		}
+		// 返回 null 表示转换失败
 		return null;
 	}
+
 
 	/**
 	 * json转换换成对象
@@ -61,12 +65,16 @@ public class Json {
 	public static <T> T parseObject(String json, Class<T> clazz) {
 		T result = null;
 		try {
+			// 将 JSON 字符串转换为指定类型的对象
 			result = objectMapper.readValue(json, clazz);
 		} catch (Exception e) {
+			// 如果转换过程中发生异常，则记录错误日志
 			log.error("对象转json错误：", e);
 		}
+		// 返回转换后的对象，如果转换失败则为 null
 		return result;
 	}
+
 
 	public static ObjectMapper getObjectMapper() {
 		return objectMapper;

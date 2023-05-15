@@ -14,7 +14,7 @@ import com.yami.shop.bean.model.ProdComm;
 /**
  * 商品评论
  *
- * @author xwc
+ * @author 北易航
  * @date 2019-04-19 10:43:57
  */
 public interface ProdCommService extends IService<ProdComm> {

@@ -2,7 +2,7 @@
 package com.yami.shop.common.response;
 
 /**
- * @author FrozenWatermelon
+ * @author 北易航
  * @date 2020/7/9
  */
 public enum ResponseEnum {

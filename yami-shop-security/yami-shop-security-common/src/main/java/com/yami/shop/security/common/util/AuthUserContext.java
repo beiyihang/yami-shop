@@ -6,7 +6,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.yami.shop.security.common.bo.UserInfoInTokenBO;
 
 /**
- * @author FrozenWatermelon
+ * @author 北易航
  * @date 2020/7/16
  */
 public class AuthUserContext {

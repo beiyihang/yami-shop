@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author 菠萝凤梨
+ * @author 北易航
  * @date 2022/3/25 17:33
  */
 @RestController
@@ -34,13 +34,18 @@ public class CaptchaController {
 
     @PostMapping({ "/check" })
     public ServerResponseEntity<ResponseModel> check(@RequestBody CaptchaVO captchaVO) {
+        // 声明一个ResponseModel对象
         ResponseModel responseModel;
         try {
+            // 调用captchaService的check方法，传入captchaVO进行验证码校验，获取校验结果
             responseModel = captchaService.check(captchaVO);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            // 如果在校验过程中出现异常，返回一个表示错误的ResponseModel对象
             return ServerResponseEntity.success(ResponseModel.errorMsg(RepCodeEnum.API_CAPTCHA_COORDINATE_ERROR));
         }
+        // 返回一个表示成功的ServerResponseEntity对象，携带校验结果responseModel
         return ServerResponseEntity.success(responseModel);
     }
+
 
 }

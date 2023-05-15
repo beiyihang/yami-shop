@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * 接口权限判断工具
- * @author lh
+ * @author 北易航
  */
 @Slf4j
 @Component("pms")

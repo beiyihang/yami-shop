@@ -33,6 +33,8 @@ public class FileUploadConfig {
     @Bean
     public com.qiniu.storage.Configuration qiniuConfig() {
         Zone zone = null;
+
+        // 根据配置的七牛云存储区域选择对应的 Zone
         if (Objects.equals(qiniu.getZone(), QiniuZone.HUA_BEI)) {
             zone = Zone.huabei();
         } else if (Objects.equals(qiniu.getZone(), QiniuZone.HUA_DONG)) {
@@ -44,8 +46,11 @@ public class FileUploadConfig {
         } else if (Objects.equals(qiniu.getZone(), QiniuZone.XIN_JIA_PO)) {
             zone = Zone.xinjiapo();
         }
+
+        // 根据选择的 Zone 创建七牛云存储配置对象
         return new com.qiniu.storage.Configuration(zone);
     }
+
 
     /**
      * 构建一个七牛上传工具实例

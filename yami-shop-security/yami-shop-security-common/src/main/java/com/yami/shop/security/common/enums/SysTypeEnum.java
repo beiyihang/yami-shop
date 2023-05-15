@@ -3,7 +3,7 @@ package com.yami.shop.security.common.enums;
 
 /**
  * 系统类型
- * @author 菠萝凤梨
+ * @author 北易航
  * @date 2022/3/25 17:33
  */
 public enum SysTypeEnum {

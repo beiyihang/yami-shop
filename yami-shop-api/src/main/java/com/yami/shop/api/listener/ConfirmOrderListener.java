@@ -42,43 +42,50 @@ public class ConfirmOrderListener {
     @EventListener(ConfirmOrderEvent.class)
     @Order(ConfirmOrderOrder.DEFAULT)
     public void defaultConfirmOrderEvent(ConfirmOrderEvent event) {
-
-
+        // 获取购物车订单信息
         ShopCartOrderDto shopCartOrderDto = event.getShopCartOrderDto();
 
+        // 获取订单参数
         OrderParam orderParam = event.getOrderParam();
 
+        // 获取当前用户的ID
         String userId = SecurityUtils.getUser().getUserId();
 
-        // 订单的地址信息
+        // 获取订单的地址信息
         UserAddr userAddr = userAddrService.getUserAddrByUserId(orderParam.getAddrId(), userId);
 
+        // 定义总金额、总数量和运费
         double total = 0.0;
-
         int totalCount = 0;
-
         double transfee = 0.0;
 
+        // 遍历购物车项
         for (ShopCartItemDto shopCartItem : event.getShopCartItems()) {
             // 获取商品信息
             Product product = productService.getProductByProdId(shopCartItem.getProdId());
             // 获取sku信息
             Sku sku = skuService.getSkuBySkuId(shopCartItem.getSkuId());
+
+            // 检查商品和sku是否存在
             if (product == null || sku == null) {
                 throw new YamiShopBindException("购物车包含无法识别的商品");
             }
+
+            // 检查商品和sku的状态
             if (product.getStatus() != 1 || sku.getStatus() != 1) {
                 throw new YamiShopBindException("商品[" + sku.getProdName() + "]已下架");
             }
 
+            // 计算总数量和总金额
             totalCount = shopCartItem.getProdCount() + totalCount;
             total = Arith.add(shopCartItem.getProductTotalAmount(), total);
-            // 用户地址如果为空，则表示该用户从未设置过任何地址相关信息
+
+            // 如果用户地址不为空，则计算运费
             if (userAddr != null) {
-                // 每个产品的运费相加
                 transfee = Arith.add(transfee, transportManagerService.calculateTransfee(shopCartItem, userAddr));
             }
 
+            // 设置实际总金额和运费到购物车订单信息中
             shopCartItem.setActualTotal(shopCartItem.getProductTotalAmount());
             shopCartOrderDto.setActualTotal(Arith.add(total, transfee));
             shopCartOrderDto.setTotal(total);
@@ -86,4 +93,5 @@ public class ConfirmOrderListener {
             shopCartOrderDto.setTransfee(transfee);
         }
     }
+
 }

@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * token管理 1. 登陆返回token 2. 刷新token 3. 清除用户过去token 4. 校验token
  *
- * @author FrozenWatermelon
+ * @author 北易航
  * @date 2020/7/2
  */
 @Component

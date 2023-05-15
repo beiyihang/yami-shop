@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author 菠萝凤梨
+ * @author 北易航
  * @date 2022/3/25 17:33
  */
 public class DefaultAuthConfigAdapter implements AuthConfigAdapter {

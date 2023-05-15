@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * @author 菠萝凤梨
+ * @author 北易航
  * @date 2022/3/25 17:33
  */
 @RestController
@@ -24,14 +24,17 @@ public class LogoutController {
     private TokenStore tokenStore;
 
     @PostMapping("/logOut")
-    @Operation(summary = "退出登陆" , description = "点击退出登陆，清除token，清除菜单缓存")
+    @Operation(summary = "退出登陆", description = "点击退出登陆，清除token，清除菜单缓存")
     public ServerResponseEntity<Void> logOut(HttpServletRequest request) {
+        // 从请求头中获取访问令牌
         String accessToken = request.getHeader("Authorization");
         if (StrUtil.isBlank(accessToken)) {
+            // 如果访问令牌为空，表示用户未登录，直接返回表示成功的ServerResponseEntity对象
             return ServerResponseEntity.success();
         }
-        // 删除该用户在该系统当前的token
+        // 删除该用户在该系统当前的访问令牌
         tokenStore.deleteCurrentToken(accessToken);
+        // 返回表示成功的ServerResponseEntity对象
         return ServerResponseEntity.success();
     }
 }

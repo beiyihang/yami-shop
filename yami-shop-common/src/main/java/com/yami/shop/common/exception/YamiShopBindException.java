@@ -1,5 +1,3 @@
-
-
 package com.yami.shop.common.exception;
 
 import com.yami.shop.common.response.ResponseEnum;
@@ -27,9 +25,12 @@ public class YamiShopBindException extends RuntimeException{
 	private ServerResponseEntity<?> serverResponseEntity;
 
 	public YamiShopBindException(ResponseEnum responseEnum) {
+		// 调用父类构造函数，传入异常消息
 		super(responseEnum.getMsg());
+		// 设置异常的错误码
 		this.code = responseEnum.value();
 	}
+
 	/**
 	 * @param responseEnum
 	 */

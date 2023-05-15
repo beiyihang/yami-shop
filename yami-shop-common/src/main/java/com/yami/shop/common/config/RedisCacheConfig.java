@@ -39,11 +39,11 @@ public class RedisCacheConfig  {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory, RedisSerializer<Object> redisSerializer) {
-
+        // 创建缓存管理器
         RedisCacheManager redisCacheManager = new RedisCacheManager(
                 RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory),
                 // 默认策略，未配置的 key 会使用这个
-                this.getRedisCacheConfigurationWithTtl(3600,redisSerializer),
+                this.getRedisCacheConfigurationWithTtl(3600, redisSerializer),
                 // 指定 key 策略
                 this.getRedisCacheConfigurationMap(redisSerializer)
         );
@@ -51,39 +51,68 @@ public class RedisCacheConfig  {
         return redisCacheManager;
     }
 
-    private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap(RedisSerializer<Object>  redisSerializer) {
+
+    private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap(RedisSerializer<Object> redisSerializer) {
+        // 创建一个空的缓存配置映射
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>(16);
+
+        // 添加缓存键为 "product" 的缓存配置
+        // 使用 getRedisCacheConfigurationWithTtl 方法创建缓存配置，设置过期时间为 1800 秒（30 分钟）
+        // 指定使用提供的 redisSerializer 进行对象的序列化和反序列化
         redisCacheConfigurationMap.put("product", this.getRedisCacheConfigurationWithTtl(1800, redisSerializer));
+
+        // 返回创建的缓存配置映射
         return redisCacheConfigurationMap;
     }
 
-    private RedisCacheConfiguration getRedisCacheConfigurationWithTtl(Integer seconds,RedisSerializer<Object> redisSerializer) {
 
-
+    private RedisCacheConfiguration getRedisCacheConfigurationWithTtl(Integer seconds, RedisSerializer<Object> redisSerializer) {
+        // 获取默认的缓存配置
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
-        redisCacheConfiguration = redisCacheConfiguration.serializeValuesWith(
-                RedisSerializationContext
-                        .SerializationPair
-                        .fromSerializer(redisSerializer)
-        ).entryTtl(Duration.ofSeconds(seconds));
 
+        // 设置缓存值的序列化方式
+        redisCacheConfiguration = redisCacheConfiguration.serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer)
+        );
+
+        // 设置缓存条目的过期时间
+        redisCacheConfiguration = redisCacheConfiguration.entryTtl(Duration.ofSeconds(seconds));
+
+        // 返回设置了过期时间的缓存配置
         return redisCacheConfiguration;
     }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,RedisSerializer<Object> redisSerializer) {
 
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory, RedisSerializer<Object> redisSerializer) {
+        // 创建 RedisTemplate 实例
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+
+        // 设置 Redis 连接工厂
         redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        // 设置键的序列化器为 StringRedisSerializer
         redisTemplate.setKeySerializer(new StringRedisSerializer());
+
+        // 设置哈希键的序列化器为 StringRedisSerializer
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+
+        // 设置值的序列化器为提供的 redisSerializer
         redisTemplate.setValueSerializer(redisSerializer);
+
+        // 设置哈希值的序列化器为提供的 redisSerializer
         redisTemplate.setHashValueSerializer(redisSerializer);
+
+        // 禁用事务支持
         redisTemplate.setEnableTransactionSupport(false);
 
+        // 初始化 RedisTemplate
         redisTemplate.afterPropertiesSet();
+
+        // 返回配置完成的 RedisTemplate 实例
         return redisTemplate;
     }
+
 
     /**
      * 自定义redis序列化的机制,重新定义一个ObjectMapper.防止和MVC的冲突
@@ -112,10 +141,16 @@ public class RedisCacheConfig  {
 
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory){
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        // 创建 StringRedisTemplate 实例
         StringRedisTemplate redisTemplate = new StringRedisTemplate(redisConnectionFactory);
+
+        // 禁用事务支持
         redisTemplate.setEnableTransactionSupport(false);
+
+        // 返回配置完成的 StringRedisTemplate 实例
         return redisTemplate;
     }
+
 
 }

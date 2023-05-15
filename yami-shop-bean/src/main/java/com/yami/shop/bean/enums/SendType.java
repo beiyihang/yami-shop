@@ -2,7 +2,7 @@
 package com.yami.shop.bean.enums;
 
 /**
- * @author lh
+ * @author 北易航
  */
 public enum SendType {
     /**

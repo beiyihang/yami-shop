@@ -27,18 +27,23 @@ public class SkuController {
 
     private final SkuService skuService;
 
-    
 
     @GetMapping("/getSkuList")
     @Operation(summary = "通过prodId获取商品全部规格列表" , description = "通过prodId获取商品全部规格列表")
     @Parameter(name = "prodId", description = "商品id" )
     public ServerResponseEntity<List<SkuDto>> getSkuListByProdId(Long prodId) {
+        // 查询符合条件的SKU列表
         List<Sku> skus = skuService.list(new LambdaQueryWrapper<Sku>()
-                .eq(Sku::getStatus, 1)
-                .eq(Sku::getIsDelete, 0)
-                .eq(Sku::getProdId, prodId)
+                .eq(Sku::getStatus, 1)            // SKU状态为1
+                .eq(Sku::getIsDelete, 0)          // SKU未删除
+                .eq(Sku::getProdId, prodId)       // SKU关联的商品ID为prodId
         );
+
+        // 将SKU列表转换为DTO列表
         List<SkuDto> skuDtoList = BeanUtil.copyToList(skus, SkuDto.class);
+
+        // 返回包含SKU列表的成功响应
         return ServerResponseEntity.success(skuDtoList);
     }
+
 }

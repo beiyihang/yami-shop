@@ -59,14 +59,22 @@ public class SearchController {
     }
 
     private ServerResponseEntity<List<HotSearchDto>> getListResponseEntity(Integer number, Integer sort, List<HotSearchDto> list) {
-        if(sort == null || sort == 0){
+        // 检查是否需要对列表进行排序
+        if (sort == null || sort == 0) {
+            // 对列表进行随机排序
             Collections.shuffle(list);
         }
-        if(!CollectionUtil.isNotEmpty(list) || list.size()< number){
+
+        // 检查列表是否为空或长度小于要求的数量
+        if (!CollectionUtil.isNotEmpty(list) || list.size() < number) {
+            // 返回包含原始列表的成功响应
             return ServerResponseEntity.success(list);
         }
+
+        // 返回包含截取后的列表的成功响应
         return ServerResponseEntity.success(list.subList(0, number));
     }
+
 
     @GetMapping("/searchProdPage")
     @Operation(summary = "分页排序搜索商品" , description = "根据商品名搜索")

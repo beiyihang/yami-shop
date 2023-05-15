@@ -32,14 +32,20 @@ public class PayController {
     @PostMapping("/pay")
     @Operation(summary = "根据订单号进行支付" , description = "根据订单号进行支付")
     public ServerResponseEntity<Void> pay(@RequestBody PayParam payParam) {
+        // 获取当前登录用户信息
         YamiUser user = SecurityUtils.getUser();
         String userId = user.getUserId();
 
-
+        // 调用支付服务进行支付
         PayInfoDto payInfo = payService.pay(userId, payParam);
+
+        // 标记支付成功
         payService.paySuccess(payInfo.getPayNo(), "");
+
+        // 返回支付成功的响应
         return ServerResponseEntity.success();
     }
+
 
     /**
      * 普通支付接口
@@ -47,14 +53,18 @@ public class PayController {
     @PostMapping("/normalPay")
     @Operation(summary = "根据订单号进行支付" , description = "根据订单号进行支付")
     public ServerResponseEntity<Boolean> normalPay(@RequestBody PayParam payParam) {
-
+        // 获取当前登录用户信息
         YamiUser user = SecurityUtils.getUser();
         String userId = user.getUserId();
+
+        // 调用支付服务进行支付
         PayInfoDto pay = payService.pay(userId, payParam);
 
-        // 根据内部订单号更新order settlement
+        // 根据内部订单号更新订单结算状态
         payService.paySuccess(pay.getPayNo(), "");
 
+        // 返回支付成功的响应
         return ServerResponseEntity.success(true);
     }
+
 }

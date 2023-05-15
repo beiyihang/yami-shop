@@ -43,36 +43,52 @@ public class UserCollectionController {
     @GetMapping("isCollection")
     @Operation(summary = "根据商品id获取该商品是否在收藏夹中" , description = "传入收藏商品id")
     public ServerResponseEntity<Boolean> isCollection(Long prodId) {
+        // 检查商品是否存在
         if (productService.count(new LambdaQueryWrapper<Product>()
                 .eq(Product::getProdId, prodId)) < 1) {
             throw new YamiShopBindException("该商品不存在");
         }
-        return ServerResponseEntity.success(userCollectionService.count(new LambdaQueryWrapper<UserCollection>()
+
+        // 检查当前用户是否已收藏该商品
+        boolean isCollected = userCollectionService.count(new LambdaQueryWrapper<UserCollection>()
                 .eq(UserCollection::getProdId, prodId)
-                .eq(UserCollection::getUserId, SecurityUtils.getUser().getUserId())) > 0);
+                .eq(UserCollection::getUserId, SecurityUtils.getUser().getUserId())) > 0;
+
+        // 返回是否已收藏的结果
+        return ServerResponseEntity.success(isCollected);
     }
+
 
     @PostMapping("/addOrCancel")
     @Operation(summary = "添加/取消收藏" , description = "传入收藏商品id,如果商品未收藏则收藏商品，已收藏则取消收藏")
     @Parameter(name = "prodId", description = "商品id" , required = true)
     public ServerResponseEntity<Void> addOrCancel(@RequestBody Long prodId) {
+        // 检查商品是否存在
         if (Objects.isNull(productService.getProductByProdId(prodId))) {
             throw new YamiShopBindException("该商品不存在");
         }
+
         String userId = SecurityUtils.getUser().getUserId();
-        if (userCollectionService.count(new LambdaQueryWrapper<UserCollection>()
+
+        // 查询用户是否已收藏该商品
+        boolean isCollected = userCollectionService.count(new LambdaQueryWrapper<UserCollection>()
                 .eq(UserCollection::getProdId, prodId)
-                .eq(UserCollection::getUserId, userId)) > 0) {
+                .eq(UserCollection::getUserId, userId)) > 0;
+
+        if (isCollected) {
+            // 用户已收藏该商品，执行取消收藏操作
             userCollectionService.remove(new LambdaQueryWrapper<UserCollection>()
                     .eq(UserCollection::getProdId, prodId)
                     .eq(UserCollection::getUserId, userId));
         } else {
+            // 用户未收藏该商品，执行添加收藏操作
             UserCollection userCollection = new UserCollection();
             userCollection.setCreateTime(new Date());
             userCollection.setUserId(userId);
             userCollection.setProdId(prodId);
             userCollectionService.save(userCollection);
         }
+
         return ServerResponseEntity.success();
     }
 

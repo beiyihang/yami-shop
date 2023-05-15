@@ -1,5 +1,3 @@
-
-
 package com.yami.shop.common.util;
 
 import lombok.AllArgsConstructor;

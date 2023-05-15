@@ -1,7 +1,4 @@
-
-
 package com.yami.shop.sys.service;
-
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yami.shop.sys.model.SysConfig;

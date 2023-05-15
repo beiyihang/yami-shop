@@ -23,10 +23,8 @@ import com.yami.shop.common.response.ServerResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -140,40 +138,64 @@ public class ShopCartController {
     @GetMapping("/prodCount")
     @Operation(summary = "获取购物车商品数量" , description = "获取所有购物车商品数量")
     public ServerResponseEntity<Integer> prodCount() {
+        // 获取当前用户的用户ID
         String userId = SecurityUtils.getUser().getUserId();
+
+        // 获取当前用户的购物车商品项列表
         List<ShopCartItemDto> shopCartItems = basketService.getShopCartItems(userId);
+
+        // 检查购物车商品项列表是否为空
         if (CollectionUtil.isEmpty(shopCartItems)) {
+            // 如果购物车为空，返回包含数量 0 的成功响应
             return ServerResponseEntity.success(0);
         }
-        Integer totalCount = shopCartItems.stream().map(ShopCartItemDto::getProdCount).reduce(0, Integer::sum);
+
+        // 计算购物车中商品的总数量
+        Integer totalCount = shopCartItems.stream()
+                .map(ShopCartItemDto::getProdCount)
+                .reduce(0, Integer::sum);
+
+        // 返回包含商品总数量的成功响应
         return ServerResponseEntity.success(totalCount);
     }
+
 
     @GetMapping("/expiryProdList")
     @Operation(summary = "获取购物车失效商品信息" , description = "获取购物车失效商品列表")
     public ServerResponseEntity<List<ShopCartExpiryItemDto>> expiryProdList() {
+        // 获取当前用户的用户ID
         String userId = SecurityUtils.getUser().getUserId();
+
+        // 获取当前用户的购物车过期商品项列表
         List<ShopCartItemDto> shopCartItems = basketService.getShopCartExpiryItems(userId);
-        //根据店铺ID划分item
-        Map<Long, List<ShopCartItemDto>> shopCartItemDtoMap = shopCartItems.stream().collect(Collectors.groupingBy(ShopCartItemDto::getShopId));
 
-        // 返回一个店铺对应的所有信息
-        List<ShopCartExpiryItemDto> shopcartExpiryitems = Lists.newArrayList();
+        // 根据店铺ID划分商品项
+        Map<Long, List<ShopCartItemDto>> shopCartItemDtoMap = shopCartItems.stream()
+                .collect(Collectors.groupingBy(ShopCartItemDto::getShopId));
 
+        // 创建用于返回的店铺过期商品项列表
+        List<ShopCartExpiryItemDto> shopcartExpiryitems = new ArrayList<>();
+
+        // 遍历每个店铺的商品项
         for (Long key : shopCartItemDtoMap.keySet()) {
             ShopCartExpiryItemDto shopCartExpiryItemDto = new ShopCartExpiryItemDto();
             shopCartExpiryItemDto.setShopId(key);
-            List<ShopCartItemDto> shopCartItemDtos = Lists.newArrayList();
+            List<ShopCartItemDto> shopCartItemDtos = new ArrayList<>();
+
+            // 遍历当前店铺的商品项，并将其加入店铺过期商品项列表
             for (ShopCartItemDto tempShopCartItemDto : shopCartItemDtoMap.get(key)) {
                 shopCartExpiryItemDto.setShopName(tempShopCartItemDto.getShopName());
                 shopCartItemDtos.add(tempShopCartItemDto);
             }
+
             shopCartExpiryItemDto.setShopCartItemDtoList(shopCartItemDtos);
             shopcartExpiryitems.add(shopCartExpiryItemDto);
         }
 
+        // 返回包含店铺过期商品项列表的成功响应
         return ServerResponseEntity.success(shopcartExpiryitems);
     }
+
 
     @DeleteMapping("/cleanExpiryProdList")
     @Operation(summary = "清空用户失效商品" , description = "清空用户失效商品")
@@ -189,7 +211,7 @@ public class ShopCartController {
 
         // 拿到购物车的所有item
         List<ShopCartItemDto> dbShopCartItems = basketService.getShopCartItems(SecurityUtils.getUser().getUserId());
-
+        // 根据指定的购物车项ID筛选出用户选择的购物车项
         List<ShopCartItemDto> chooseShopCartItems = dbShopCartItems
                                                         .stream()
                                                         .filter(shopCartItemDto -> {
@@ -202,23 +224,27 @@ public class ShopCartController {
                                                         })
                                                         .collect(Collectors.toList());
 
-        // 根据店铺ID划分item
+        // 根据店铺ID划分购物车项
         Map<Long, List<ShopCartItemDto>> shopCartMap = chooseShopCartItems.stream().collect(Collectors.groupingBy(ShopCartItemDto::getShopId));
-
+        // 初始化总金额、商品数量和优惠金额
         double total = 0.0;
         int count = 0;
         double reduce = 0.0;
+        // 遍历每个店铺的购物车项
         for (Long shopId : shopCartMap.keySet()) {
-            //获取店铺的所有商品项
+            // 获取当前店铺的所有购物车项
             List<ShopCartItemDto> shopCartItemDtoList = shopCartMap.get(shopId);
-            // 构建每个店铺的购物车信息
+
+            // 构建店铺的购物车信息
             ShopCartDto shopCart = new ShopCartDto();
             shopCart.setShopId(shopId);
 
+            // 发布店铺购物车事件，将购物车项添加到购物车中
             applicationContext.publishEvent(new ShopCartEvent(shopCart, shopCartItemDtoList));
 
+            // 获取店铺购物车项的折扣信息
             List<ShopCartItemDiscountDto> shopCartItemDiscounts = shopCart.getShopCartItemDiscounts();
-
+            // 遍历每个折扣信息，计算总金额和商品数量
             for (ShopCartItemDiscountDto shopCartItemDiscount : shopCartItemDiscounts) {
                 List<ShopCartItemDto> shopCartItems = shopCartItemDiscount.getShopCartItems();
 
@@ -228,12 +254,14 @@ public class ShopCartController {
                 }
             }
         }
+        // 构建购物车总金额信息
         ShopCartAmountDto shopCartAmountDto = new ShopCartAmountDto();
         shopCartAmountDto.setCount(count);
         shopCartAmountDto.setTotalMoney(total);
         shopCartAmountDto.setSubtractMoney(reduce);
         shopCartAmountDto.setFinalMoney(Arith.sub(shopCartAmountDto.getTotalMoney(), shopCartAmountDto.getSubtractMoney()));
 
+        // 返回包含购物车总金额信息的成功响应
         return ServerResponseEntity.success(shopCartAmountDto);
     }
 

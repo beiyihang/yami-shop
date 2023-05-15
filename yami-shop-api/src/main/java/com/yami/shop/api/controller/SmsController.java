@@ -30,9 +30,14 @@ public class SmsController {
     @PostMapping("/send")
     @Operation(summary = "发送验证码" , description = "用户的发送验证码")
     public ServerResponseEntity<Void> audit(@RequestBody SendSmsParam sendSmsParam) {
-		String userId = SecurityUtils.getUser().getUserId();
-		smsLogService.sendSms(SmsType.VALID, userId, sendSmsParam.getMobile(),Maps.newHashMap());
-		
-		return ServerResponseEntity.success();
+        // 获取当前用户的用户ID
+        String userId = SecurityUtils.getUser().getUserId();
+
+        // 发送短信验证码
+        smsLogService.sendSms(SmsType.VALID, userId, sendSmsParam.getMobile(), Maps.newHashMap());
+
+        // 返回成功响应
+        return ServerResponseEntity.success();
     }
+
 }

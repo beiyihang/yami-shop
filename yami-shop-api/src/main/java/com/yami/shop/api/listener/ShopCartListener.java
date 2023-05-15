@@ -28,16 +28,27 @@ public class ShopCartListener {
     @EventListener(ShopCartEvent.class)
     @Order(ShopCartEventOrder.DEFAULT)
     public void defaultShopCartEvent(ShopCartEvent event) {
+        // 获取购物车信息
         ShopCartDto shopCart = event.getShopCartDto();
+
+        // 获取购物车项列表
         List<ShopCartItemDto> shopCartItemDtoList = event.getShopCartItemDtoList();
+
         // 对数据进行组装
         List<ShopCartItemDiscountDto> shopCartItemDiscountDtoList = Lists.newArrayList();
+
+        // 创建购物车项折扣信息对象
         ShopCartItemDiscountDto shopCartItemDiscountDto = new ShopCartItemDiscountDto();
 
+        // 设置购物车项列表到购物车项折扣信息对象中
         shopCartItemDiscountDto.setShopCartItems(shopCartItemDtoList);
+
+        // 将购物车项折扣信息对象添加到购物车的折扣信息列表中
         shopCartItemDiscountDtoList.add(shopCartItemDiscountDto);
 
+        // 设置购物车的折扣信息列表
         shopCart.setShopCartItemDiscounts(shopCartItemDiscountDtoList);
     }
+
 
 }

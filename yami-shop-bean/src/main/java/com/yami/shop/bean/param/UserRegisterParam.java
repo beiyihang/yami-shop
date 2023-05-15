@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * @author lh
+ * @author 北易航
  */
 @Data
 @Schema(description = "设置用户信息")
